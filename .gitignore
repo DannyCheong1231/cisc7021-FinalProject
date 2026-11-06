@@ -1,0 +1,6 @@
+.venv/
+.python312/
+__pycache__/
+.pytest_cache/
+data/
+runs/
