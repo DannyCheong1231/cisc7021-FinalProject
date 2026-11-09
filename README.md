@@ -42,6 +42,7 @@ MLP 分類頭：LayerNorm → Linear → ReLU → Dropout → Linear
 | `verify_results.py` | 載入已儲存的分類頭與特徵，重新計算 test 預測，核對 CSV、標籤映射、accuracy、macro-F1 及混淆矩陣。 |
 | `plot_results.py` | 讀取實驗紀錄，繪製 Train / Validation loss、accuracy、macro-F1，以及實驗比較圖。 |
 | `test_sst5.py` | 檢查資料標籤、padding、LLM 凍結、分類頭更新、權重重載、特徵重用及正則化參數是否正確。 |
+| `test_dynasent.py` | 檢查 DynaSent 人工標籤過濾、三分類輸出、權重重載及分輪評估。 |
 
 ### `sst5.py` 的主要組件
 
@@ -77,3 +78,9 @@ MLP 分類頭：LayerNorm → Linear → ReLU → Dropout → Linear
 修改分類頭架構可閱讀 `Head`；修改特徵選取方式可閱讀 `FrozenEncoder`；修改訓練流程可閱讀 `fit_head`。比較設定時應保持資料切分一致，並以 validation 選擇模型。
 
 歷史對照結果保存在本地 `runs/`，包括 learning rate、分類頭大小及 dropout / weight decay 比較；此目錄預設不隨 Git 上傳。目前以單一 seed 為主，尚未驗證多 seed 穩定性及中文／粵語評論表現。
+
+## DynaSent 獨立實驗
+
+加入 `--dataset dynasent` 使用官方 DynaSent v1.1 的兩輪 train/dev/test，各自合併；只保留人工共識 gold_label 的負面／中性／正面。訓練 93,553 筆、validation 4,320 筆、test 4,320 筆，內部編碼依序 0/1/2。分類頭輸出改為 3 類，保存合併 validation macro-F1 最佳模型，另報告兩輪 test 成績。
+
+本次使用 42M 課程模型，設定與操作指令見 [DYNASENT.md](DYNASENT.md)。未指定 dataset 時仍使用原有 SST-5；DynaSent 與 SST-5 的特徵快取不能混用，兩者 accuracy 也不能直接比較難度高低。
